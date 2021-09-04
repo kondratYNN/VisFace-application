@@ -11,6 +11,7 @@ class FaceProc:
 
     video_capture = -1
     known_faces = None
+    face_names = None
 
     def __init__(self, function='Detector', count=False):
         self.function = function
@@ -30,18 +31,20 @@ class FaceProc:
         cur = conn.cursor()
         cur.execute('SELECT image_path FROM person;')
         all_photo_paths = cur.fetchall()
-        print(all_photo_paths)
         for element in all_photo_paths:
             for photo_path in element:
                 print(str(photo_path))
                 image = face_recognition.load_image_file(str(photo_path))
                 face_encoding = face_recognition.face_encodings(image)[0]
                 self.known_faces.append(face_encoding)
-        # image = face_recognition.load_image_file("face_img/Yana Kondratovich.jpg")
-        # face_encoding = face_recognition.face_encodings(image)[0]
-        # self.known_faces = [
-        #     face_encoding,
-        # ]
+        self.face_names = []
+        cur.execute('SELECT name FROM person;')
+        all_names = cur.fetchall()
+        for element in all_names:
+            for name in element:
+                self.face_names.append(name)
+        conn.commit()
+        conn.close()
 
     def start(self):
         face_names = []
@@ -67,8 +70,9 @@ class FaceProc:
                         # Проверяем полученные "развертки" на совпадение с имеющимися в базе, если совпадают, даем имя
                         match = face_recognition.compare_faces(self.known_faces, face_encoding, tolerance=0.50)
                         name = None
-                        if match[0]:
-                            name = "Yanina Kondratovich"
+                        for element in match:
+                            if element:
+                                name = self.face_names[match.index(element)]
                         face_names.append(name)
                         # Добавляем опознанных в список
                         if self.counter:
@@ -107,6 +111,10 @@ class FaceProc:
             if self.function == 'Recognition':
                 print('Из них опознано: {}'.format(len(identified_face_names)))
                 print('Список опознанных лиц: {}'.format(' '.join(identified_face_names)))
+                return face_amount, identified_face_names
+            else:
+                return face_amount
+
 
     def close(self):
         self.video_capture.release()
