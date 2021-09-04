@@ -447,10 +447,12 @@ class MainMenu(QWidget):
                             QPushButton:pressed { background-color: #FFA241}
                             """
 
+
     def __init__(self):
         super().__init__()
         self.initUI()
         self.child_window = None
+        self.__exit_flag = 1
 
     def show_info(self):
         link = 'https://www.linkedin.com/in/kondratynn/'
@@ -459,24 +461,29 @@ class MainMenu(QWidget):
         QMessageBox.information(self, 'Info', msg, QMessageBox.Ok, QMessageBox.Ok)
 
     def create_db_win(self):
+        self.__exit_flag = 0
         self.close()
         self.child_window = DatabaseWindow()
         self.child_window.show()
 
     def create_recognition_win(self):
+        self.__exit_flag = 0
         self.close()
         # QCoreApplication.instance().quit()
         self.child_window = RecognitionWindow()
         self.child_window.show()
 
     def closeEvent(self, event):
-        reply = QMessageBox.question(self, 'Exit',
-                                     "Are you sure to quit?", QMessageBox.Yes |
-                                     QMessageBox.No, QMessageBox.No)
-        if reply == QMessageBox.Yes:
-            event.accept()
+        if self.__exit_flag == 1:
+            reply = QMessageBox.question(self, 'Exit',
+                                        "Are you sure to quit?", QMessageBox.Yes |
+                                        QMessageBox.No, QMessageBox.No)
+            if reply == QMessageBox.Yes:
+                event.accept()
+            else:
+                event.ignore()
         else:
-            event.ignore()
+            event.accept
 
     def initUI(self):
         palette = QPalette()
