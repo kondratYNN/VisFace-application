@@ -381,7 +381,11 @@ class DatabaseWindow(QWidget):
         cur.execute('DELETE from person WHERE name=?;', (name,))
         conn.commit()
         conn.close()
-        os.remove(file_path_to_delete[0])
+        try:
+            os.remove(file_path_to_delete[0])
+        except Exception as e:
+            print(e)
+            QMessageBox.warning(self, 'Error', 'Something went wrong...\nPlease, check input name.')
         self.del_name_edl.setText('')
         self.fillQTable()
 
@@ -389,25 +393,26 @@ class DatabaseWindow(QWidget):
         name = self.name_edl.text()
         status = self.status_edl.text()
         path = self.path_edl.text()
-        new_path = 'face_img/' + name + '.jpg'
-        shutil.copy(path, new_path)
-        conn = sqlite3.connect('personality.db')
-        cur = conn.cursor()
-        cur.execute('''CREATE TABLE IF NOT EXISTS person(
-                        id INTEGER PRIMARY KEY,
-                        name TEXT NOT NULL,
-                        status TEXT NOT NULL,
-                        image_path TEXT NOT NULL);
-                    ''')
-        conn.commit()
-        user = (name, status, new_path)
-        cur.execute("INSERT INTO person(name, status, image_path) VALUES(?, ?, ?);", user)
-        conn.commit()
-        conn.close()
+        if name and status and path:
+            new_path = 'face_img/' + name + '.jpg'
+            shutil.copy(path, new_path)
+            conn = sqlite3.connect('personality.db')
+            cur = conn.cursor()
+            cur.execute('''CREATE TABLE IF NOT EXISTS person(
+                            id INTEGER PRIMARY KEY,
+                            name TEXT NOT NULL,
+                            status TEXT NOT NULL,
+                            image_path TEXT NOT NULL);
+                        ''')
+            conn.commit()
+            user = (name, status, new_path)
+            cur.execute("INSERT INTO person(name, status, image_path) VALUES(?, ?, ?);", user)
+            conn.commit()
+            conn.close()
+            self.for_pic_lbl.setText('Person added')
         self.name_edl.setText('')
         self.path_edl.setText('')
         self.status_edl.setText('')
-        self.for_pic_lbl.setText('Person added')
         self.fillQTable()
 
     def choose_pic_dialog(self):
