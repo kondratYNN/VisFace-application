@@ -31,14 +31,14 @@ class RecognitionWindow(QWidget):
         self.setPalette(palette)
         self.setFixedSize(1200, 1000)
         self.center()
-        self.setWindowTitle('Распознавание лиц')
+        self.setWindowTitle('Face Recognition')
         self.setWindowIcon(QIcon('view_elements/icon.png'))
 
         title_lbl = QLabel(self)
         title_lbl.setText('VisFace Recognition')
         title_lbl.setFont(QFont('Kaufmann BT', 40))
         title_lbl.setAlignment(Qt.AlignCenter)
-        title_lbl.move(350, 30)
+        title_lbl.move(350, 70)
 
         main_menu_btn = QPushButton('Go back', self)
         main_menu_btn.setFont(QFont('SansSerif', 10))
@@ -56,7 +56,7 @@ class RecognitionWindow(QWidget):
 
         start_btn = QPushButton('Start camera', self)
         start_btn.setFont(QFont('SansSerif', 12))
-        start_btn.setToolTip('Запуск камеры для <b>распознавания</b>')
+        start_btn.setToolTip('Launch camera frame <b>recognition</b>')
         start_btn.setGeometry(200, 200, 800, 50)
         start_btn.setCursor(QCursor(Qt.PointingHandCursor))
         start_btn.setStyleSheet(self.__BUTTON_STYLESHEET)
@@ -83,7 +83,7 @@ class RecognitionWindow(QWidget):
 
         txt_save_btn = QPushButton('Save results(.txt)', self)
         txt_save_btn.setFont(QFont('SansSerif', 12))
-        txt_save_btn.setToolTip('Сохранить результат в <b>файл</b>')
+        txt_save_btn.setToolTip('Save results  to <b>txt file</b>')
         txt_save_btn.setGeometry(200, 750, 395, 70)
         txt_save_btn.setCursor(QCursor(Qt.PointingHandCursor))
         txt_save_btn.setStyleSheet(self.__BUTTON_STYLESHEET)
@@ -91,7 +91,7 @@ class RecognitionWindow(QWidget):
 
         xlsx_save_btn = QPushButton('Save results(.xlsx)', self)
         xlsx_save_btn.setFont(QFont('SansSerif', 12))
-        xlsx_save_btn.setToolTip('Сохранить результат в <b>файл</b>')
+        xlsx_save_btn.setToolTip('Save results  to <b>xlsx file</b>')
         xlsx_save_btn.setGeometry(605, 750, 395, 70)
         xlsx_save_btn.setCursor(QCursor(Qt.PointingHandCursor))
         xlsx_save_btn.setStyleSheet(self.__BUTTON_STYLESHEET)
@@ -167,12 +167,12 @@ class RecognitionWindow(QWidget):
     def getData(self, value_names_list):
         conn = sqlite3.connect('personality.db')
         cur = conn.cursor()
-        cur.execute("""CREATE TABLE IF NOT EXISTS person(
-                   id INT PRIMARY KEY,
-                   name TEXT,
-                   status TEXT,
-                   image_path TEXT);
-                """)
+        cur.execute('''CREATE TABLE IF NOT EXISTS person(
+                        id INTEGER PRIMARY KEY,
+                        name TEXT NOT NULL,
+                        status TEXT NOT NULL,
+                        image_path TEXT NOT NULL);
+                    ''')
         conn.commit()
         cur.execute("select name, status, image_path from person WHERE name=?", tuple(value_names_list))
         raw_data = cur.fetchall()
@@ -244,12 +244,12 @@ class DatabaseWindow(QWidget):
     def getData(self):
         conn = sqlite3.connect('personality.db')
         cur = conn.cursor()
-        cur.execute("""CREATE TABLE IF NOT EXISTS person(
-                   id INT PRIMARY KEY,
-                   name TEXT,
-                   status TEXT,
-                   image_path TEXT);
-                """)
+        cur.execute('''CREATE TABLE IF NOT EXISTS person(
+                        id INTEGER PRIMARY KEY,
+                        name TEXT NOT NULL,
+                        status TEXT NOT NULL,
+                        image_path TEXT NOT NULL);
+                    ''')
         conn.commit()
         cur.execute("select name, status, image_path from person")
         raw_data = cur.fetchall()
@@ -263,7 +263,7 @@ class DatabaseWindow(QWidget):
         self.setPalette(palette)
         self.setFixedSize(1200, 1000)
         self.center()
-        self.setWindowTitle('База данных лиц')
+        self.setWindowTitle('Face Database')
         self.setWindowIcon(QIcon('view_elements/icon.png'))
 
         title_lbl = QLabel(self)
@@ -301,7 +301,7 @@ class DatabaseWindow(QWidget):
 
         chpath_btn = QPushButton('Choose path', self)
         chpath_btn.setFont(QFont('SansSerif', 12))
-        chpath_btn.setToolTip('Открыть окно для <b>выбора файла</b>')
+        chpath_btn.setToolTip('Open window to select a file')
         chpath_btn.setGeometry(850, 220, 150, 40)
         chpath_btn.setCursor(QCursor(Qt.PointingHandCursor))
         chpath_btn.setStyleSheet(self.__BUTTON_STYLESHEET)
@@ -369,12 +369,12 @@ class DatabaseWindow(QWidget):
         name = self.del_name_edl.text()
         conn = sqlite3.connect('personality.db')
         cur = conn.cursor()
-        cur.execute("""CREATE TABLE IF NOT EXISTS person(
-                   id INT PRIMARY KEY,
-                   name TEXT,
-                   status TEXT,
-                   image_path TEXT);
-                """)
+        cur.execute('''CREATE TABLE IF NOT EXISTS person(
+                        id INTEGER PRIMARY KEY,
+                        name TEXT NOT NULL,
+                        status TEXT NOT NULL,
+                        image_path TEXT NOT NULL);
+                    ''')
         conn.commit()
         cur.execute("SELECT image_path from person WHERE name=?;", (name,))
         file_path_to_delete = cur.fetchone()
@@ -391,19 +391,17 @@ class DatabaseWindow(QWidget):
         path = self.path_edl.text()
         new_path = 'face_img/' + name + '.jpg'
         shutil.copy(path, new_path)
-        num_files = len([f for f in os.listdir('face_img/')
-                         if os.path.isfile(os.path.join('face_img/', f))])
         conn = sqlite3.connect('personality.db')
         cur = conn.cursor()
-        cur.execute("""CREATE TABLE IF NOT EXISTS person(
-           id INT PRIMARY KEY,
-           name TEXT,
-           status TEXT,
-           image_path TEXT);
-        """)
+        cur.execute('''CREATE TABLE IF NOT EXISTS person(
+                        id INTEGER PRIMARY KEY,
+                        name TEXT NOT NULL,
+                        status TEXT NOT NULL,
+                        image_path TEXT NOT NULL);
+                    ''')
         conn.commit()
-        user = (num_files, name, status, new_path)
-        cur.execute("INSERT INTO person VALUES(?, ?, ?, ?);", user)
+        user = (name, status, new_path)
+        cur.execute("INSERT INTO person(name, status, image_path) VALUES(?, ?, ?);", user)
         conn.commit()
         conn.close()
         self.name_edl.setText('')
@@ -486,7 +484,7 @@ class MainMenu(QWidget):
         self.setPalette(palette)
         self.setFixedSize(1200, 1000)
         self.center()
-        self.setWindowTitle('Главное меню')
+        self.setWindowTitle('Main menu')
         self.setWindowIcon(QIcon('view_elements/icon.png'))
         QToolTip.setFont(QFont('SansSerif', 8))
 
@@ -503,43 +501,43 @@ class MainMenu(QWidget):
         frame.setFrameShadow(QFrame.Sunken)
         frame.setLineWidth(2)
 
-        face_detect_btn = QPushButton('Определение лиц', self)
+        face_detect_btn = QPushButton('Face detection', self)
         face_detect_btn.setFont(QFont('SansSerif', 18))
-        face_detect_btn.setToolTip('Открыть окно для <b>определения лиц</b> в захвате камеры')
+        face_detect_btn.setToolTip('Open window to <b>detect</b> persons in camera capture')
         face_detect_btn.resize(400, 100)
         face_detect_btn.move(400, 220)
         face_detect_btn.setCursor(QCursor(Qt.PointingHandCursor))
         face_detect_btn.setStyleSheet(self.__BUTTON_STYLESHEET)
         face_detect_btn.clicked.connect(detection)
 
-        face_bd_btn = QPushButton('База лиц', self)
+        face_bd_btn = QPushButton('Face database', self)
         face_bd_btn.setFont(QFont('SansSerif', 18))
-        face_bd_btn.setToolTip('Открыть окно для <b>работы с базой лиц</b>')
+        face_bd_btn.setToolTip('Open face database window')
         face_bd_btn.resize(400, 100)
         face_bd_btn.move(400, 350)
         face_bd_btn.setCursor(QCursor(Qt.PointingHandCursor))
         face_bd_btn.setStyleSheet(self.__BUTTON_STYLESHEET)
         face_bd_btn.clicked.connect(self.create_db_win)
 
-        face_rec_btn = QPushButton('Распознавание лиц', self)
+        face_rec_btn = QPushButton('Face recognition', self)
         face_rec_btn.setFont(QFont('SansSerif', 18))
-        face_rec_btn.setToolTip('Открыть окно для <b>распознавания лиц</b> в захвате камеры')
+        face_rec_btn.setToolTip('Open window to <b>recognize</b> persons in camera capture')
         face_rec_btn.resize(400, 100)
         face_rec_btn.move(400, 480)
         face_rec_btn.setCursor(QCursor(Qt.PointingHandCursor))
         face_rec_btn.setStyleSheet(self.__BUTTON_STYLESHEET)
-        face_rec_btn.clicked.connect(self.create_recognition_win)  # можно просто recognition
+        face_rec_btn.clicked.connect(self.create_recognition_win)
 
-        info_btn = QPushButton('О программе', self)
+        info_btn = QPushButton('About program', self)
         info_btn.setFont(QFont('SansSerif', 18))
-        info_btn.setToolTip('<b>Информационная справка</b>')
+        info_btn.setToolTip('<b>Information sheet</b>')
         info_btn.resize(400, 100)
         info_btn.move(400, 610)
         info_btn.setCursor(QCursor(Qt.PointingHandCursor))
         info_btn.setStyleSheet(self.__BUTTON_STYLESHEET)
         info_btn.clicked.connect(self.show_info)
 
-        esc_btn = QPushButton('Выход', self)
+        esc_btn = QPushButton('Exit', self)
         esc_btn.setFont(QFont('SansSerif', 18))
         esc_btn.resize(400, 100)
         esc_btn.move(400, 790)
@@ -554,10 +552,6 @@ class MainMenu(QWidget):
             self.close()
 
     def center(self):
-        # qr = self.frameGeometry()
-        # cp = QDesktopWidget().availableGeometry().center()
-        # qr.moveCenter(cp)
-        # self.move(qr.topLeft())
         pos = QDesktopWidget().rect().center() - self.rect().center()
         self.move(pos)
 
@@ -567,4 +561,4 @@ if __name__ == '__main__':
     ex = MainMenu()
     sys.exit(app.exec_())
 
-# Как правильно сделать индексацию, вопрос с выходом как обыграть
+# Вопрос с выходом как обыграть
