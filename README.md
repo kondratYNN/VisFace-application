@@ -70,12 +70,12 @@ ___
 Результаты распознавания лиц можно сохранить в *TXT* и *XLSX* форматах.
 ___
 ### Скриншоты
-![MainMenu](screenshots/Main_menu.png "Main menu")
+![MainMenu](Screenshots/Main_menu.png "Main menu")
 
-![Info](screenshots/Info.png "About program")
+![Info](Screenshots/Info.png "About program")
 
-![DataBase](screenshots/Database.png "DataBase window")
+![DataBase](Screenshots/Database.png "DataBase window")
 
-![Recognition](screenshots/Recognition.png "Recognition window")
+![Recognition](Screenshots/Recognition.png "Recognition window")
 
-![Recognition_s](screenshots/Save.png "Recognition save window")
+![Recognition_s](Screenshots/Save.png "Recognition save window")
